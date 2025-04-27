@@ -1,8 +1,12 @@
-from openai import OpenAI
 from config import OPENROUTER_API_KEY
 
+try:
+    from openai import OpenAI
+except ImportError:
+    raise ImportError("Make sure you are using openai>=1.0.0")
+
 client = OpenAI(
-    api_key="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",
+    api_key=OPENROUTER_API_KEY,
     base_url="https://openrouter.ai/api/v1"
 )
 
