@@ -1,12 +1,15 @@
 from config import OPENROUTER_API_KEY
+import os
 from openai import OpenAI
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    default_headers={
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    },
-)
+# Set OpenRouter API Key
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+# Ensure the environment variable is set for OpenAI SDK
+os.environ["OPENAI_API_KEY"] = OPENROUTER_API_KEY
+
+# Initialize OpenAI client
+client = OpenAI()
 
 def generate_insights(chaos_text):
     print("[GPT Processor] Generating product idea...")
