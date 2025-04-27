@@ -17,7 +17,7 @@ def generate_insights(chaos_text):
         "Format: <eBook, Guide, Course, etc.>"
     )
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="mistralai/mixtral-8x7b",
         messages=[
             {"role": "system", "content": system_prompt},
