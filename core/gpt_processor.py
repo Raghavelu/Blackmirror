@@ -1,13 +1,11 @@
 from config import OPENROUTER_API_KEY
-
-try:
-    from openai import OpenAI
-except ImportError:
-    raise ImportError("Make sure you are using openai>=1.0.0")
+from openai import OpenAI
 
 client = OpenAI(
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1"
+    base_url="https://openrouter.ai/api/v1",
+    default_headers={
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+    },
 )
 
 def generate_insights(chaos_text):
