@@ -5,7 +5,7 @@ load_dotenv()
 
 print("🔍 Available ENV Keys:", list(os.environ.keys()))  # Debug print
 
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or os.environ.get("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 print("🔍 Detected OPENROUTER_API_KEY:", "SET" if OPENROUTER_API_KEY else "MISSING")  # Debug print
 
