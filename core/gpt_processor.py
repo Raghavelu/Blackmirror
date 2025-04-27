@@ -1,8 +1,10 @@
-import openai
+from openai import OpenAI
 from config import OPENROUTER_API_KEY
 
-openai.api_key = OPENROUTER_API_KEY
-openai.api_base = "https://openrouter.ai/api/v1"
+client = OpenAI(
+    api_key=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,
+    base_url="https://openrouter.ai/api/v1"
+)
 
 def generate_insights(chaos_text):
     print("[GPT Processor] Generating product idea...")
@@ -17,7 +19,7 @@ def generate_insights(chaos_text):
         "Format: <eBook, Guide, Course, etc.>"
     )
 
-    response = client.chat.completions.create(
+    chat_completion = client.chat.completions.create(
         model="mistralai/mixtral-8x7b",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -25,5 +27,5 @@ def generate_insights(chaos_text):
         ]
     )
 
-    idea = response['choices'][0]['message']['content']
+    idea = chat_completion.choices[0].message.content
     return idea
