@@ -1,24 +1,42 @@
 import json
 import os
+import zipfile
+from datetime import datetime
 
-def save_log(chaos_text, insight_text, txt_file, pdf_file):
-    print("[Deployer] Saving log...")
+LOG_FILE = 'data/chaos_logs.json'
 
+def save_log(chaos_text, insights, txt_path, pdf_path):
     os.makedirs('data', exist_ok=True)
-    logs_file = 'data/chaos_logs.json'
-
-    if os.path.exists(logs_file):
-        with open(logs_file, 'r') as f:
-            logs = json.load(f)
-    else:
-        logs = []
-
-    logs.append({
+    
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    log_entry = {
+        "timestamp": timestamp,
         "chaos": chaos_text,
-        "insight": insight_text,
-        "txt_product": txt_file,
-        "pdf_product": pdf_file
-    })
+        "insights": insights,
+        "txt_file": txt_path,
+        "pdf_file": pdf_path,
+        "zip_file": create_zip_bundle(txt_path, pdf_path, timestamp)
+    }
 
-    with open(logs_file, 'w') as f:
-        json.dump(logs, f, indent=2)
+    if not os.path.exists(LOG_FILE):
+        logs = []
+    else:
+        with open(LOG_FILE, 'r') as f:
+            logs = json.load(f)
+
+    logs.append(log_entry)
+
+    with open(LOG_FILE, 'w') as f:
+        json.dump(logs, f, indent=4)
+
+    print(f"[Deployer] Log saved. Bundle created: {log_entry['zip_file']}")
+
+def create_zip_bundle(txt_path, pdf_path, timestamp):
+    bundle_dir = 'assets/products'
+    os.makedirs(bundle_dir, exist_ok=True)
+
+    zip_filename = os.path.join(bundle_dir, f"product_bundle_{timestamp}.zip")
+    with zipfile.ZipFile(zip_filename, 'w') as bundle:
+        bundle.write(txt_path, arcname=os.path.basename(txt_path))
+        bundle.write(pdf_path, arcname=os.path.basename(pdf_path))
+    return zip_filename
