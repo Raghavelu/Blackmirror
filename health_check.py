@@ -8,6 +8,7 @@ load_dotenv()
 api_key = os.getenv("OPENROUTER_API_KEY")
 
 def check_model(model_name):
+    print(f"[INFO] Checking model '{model_name}'...")  # Log the model being checked
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -29,6 +30,7 @@ def check_model(model_name):
             print(f"[FAIL] Model '{model_name}' returned error: {response.status_code} - {response.text}")
     except Exception as e:
         print(f"[ERROR] Model '{model_name}' failed with exception: {str(e)}")
+
 
 def run_health_check():
     for model in FREE_MODELS:
