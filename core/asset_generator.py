@@ -1,6 +1,8 @@
 import os
 from datetime import datetime
 from fpdf import FPDF
+from datetime import datetime
+
 
 def create_assets(insight_text):
     print("[Asset Generator] Creating assets (TXT and PDF)...")
