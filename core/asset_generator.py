@@ -25,7 +25,7 @@ def create_assets(insight_text):
         f.write(insight_text)
 
     # Save PDF
-    pdf = FPDF()
+    pdf = FPDF(encoding="utf-8")
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     for line in insight_text.split('\n'):
