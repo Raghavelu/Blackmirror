@@ -2,10 +2,10 @@ from flask import Flask, send_file, jsonify
 from core.chaos_crawler import collect_chaos
 from core.gpt_processor import generate_insights
 from core.asset_generator import create_assets
-from core.deployer import save_log, create_zip_bundle  
+from core.deployer import save_log, create_zip_bundle
 from utils.models_fallback import FREE_MODELS
-from utils.models_health import check_model_health  
 import os
+import subprocess  
 
 app = Flask(__name__)
 
@@ -29,8 +29,12 @@ def download_latest_zip():
 
 @app.route("/health")
 def health_check():
-    result = check_model_health()
-    return jsonify(result)
+    # Run the health check script as a subprocess
+    try:
+        subprocess.run(["python", "health_check.py"], check=True, capture_output=True)
+        return jsonify({"status": "OK", "message": "All models are functioning properly."})
+    except subprocess.CalledProcessError as e:
+        return jsonify({"status": "FAIL", "message": "Health check failed", "details": e.stderr.decode()}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
