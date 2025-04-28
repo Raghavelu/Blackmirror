@@ -1,5 +1,6 @@
 from openai import OpenAI
 from config import OPENROUTER_API_KEY
+from dotenv import load_dotenv
 import random
 import time
 import os
