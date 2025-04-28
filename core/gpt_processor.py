@@ -1,15 +1,4 @@
-from config import OPENROUTER_API_KEY
-import os
-from openai import OpenAI
-
-# Set OpenRouter API Key
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
-# Ensure the environment variable is set for OpenAI SDK
-os.environ["OPENAI_API_KEY"] = OPENROUTER_API_KEY
-
-# Initialize OpenAI client
-client = OpenAI()
+from utils.models_fallback import smart_generate
 
 def generate_insights(chaos_text):
     print("[GPT Processor] Generating product idea...")
@@ -24,13 +13,7 @@ def generate_insights(chaos_text):
         "Format: <eBook, Guide, Course, etc.>"
     )
 
-    chat_completion = client.chat.completions.create(
-        model="mistralai/mixtral-8x7b",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": chaos_text}
-        ]
-    )
+    # Call the smart fallback function
+    idea = smart_generate(system_prompt, chaos_text)
 
-    idea = chat_completion.choices[0].message.content
     return idea
