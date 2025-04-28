@@ -1,4 +1,4 @@
-from utils.models_fallback import MODEL_LIST
+from utils.models_fallback import FREE_MODELS
 import requests
 import os
 from dotenv import load_dotenv
@@ -31,7 +31,7 @@ def check_model(model_name):
         print(f"[ERROR] Model '{model_name}' failed with exception: {str(e)}")
 
 def run_health_check():
-    for model in MODEL_LIST:
+    for model in FREE_MODELS:
         check_model(model)
 
 if __name__ == "__main__":
