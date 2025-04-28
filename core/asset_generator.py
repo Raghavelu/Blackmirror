@@ -4,7 +4,14 @@ from fpdf import FPDF
 
 def create_assets(insight_text):
     print("[Asset Generator] Creating assets (TXT and PDF)...")
-    os.makedirs('assets/products', exist_ok=True)
+
+    # Check if the directory exists before proceeding
+    if not os.path.exists('assets/products'):
+        print("[ERROR] Directory 'assets/products' does not exist.")
+    else:
+        print("[INFO] Directory 'assets/products' exists.")
+
+    os.makedirs('assets/products', exist_ok=True)  # Ensures directory exists or creates it
 
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     base_filename = f'product_{timestamp}'
