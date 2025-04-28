@@ -6,6 +6,12 @@ from datetime import datetime
 LOG_FILE = 'data/chaos_logs.json'
 
 def save_log(chaos_text, insights, txt_path, pdf_path):
+    # Check if 'data' directory exists before saving log
+    if not os.path.exists('data'):
+        print("[ERROR] Directory 'data' does not exist.")
+    else:
+        print("[INFO] Directory 'data' exists.")
+        
     os.makedirs('data', exist_ok=True)
     
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
