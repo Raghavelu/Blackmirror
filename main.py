@@ -1,7 +1,8 @@
 from flask import Flask, send_file, jsonify
 from core.chaos_crawler import collect_chaos
 from core.gpt_processor import generate_insights
-from core.asset_generator import create_assets, create_zip_bundle
+from core.asset_generator import create_assets
+from core.deployer import create_zip_bundle
 from core.deployer import save_log
 from utils.models_fallback import FREE_MODELS
 from utils.models_health import check_model_health
