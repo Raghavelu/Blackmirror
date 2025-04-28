@@ -2,10 +2,9 @@ from flask import Flask, send_file, jsonify
 from core.chaos_crawler import collect_chaos
 from core.gpt_processor import generate_insights
 from core.asset_generator import create_assets
-from core.deployer import create_zip_bundle
-from core.deployer import save_log
+from core.deployer import save_log, create_zip_bundle  
 from utils.models_fallback import FREE_MODELS
-from utils.models_health import check_model_health
+from utils.models_health import check_model_health  
 import os
 
 app = Flask(__name__)
@@ -15,7 +14,7 @@ def run_blackmirror():
     chaos_data = collect_chaos()
     insights = generate_insights(chaos_data)
     txt_path, pdf_path = create_assets(insights)
-    create_zip_bundle()  # <- bundle into zip
+    create_zip_bundle(txt_path, pdf_path, datetime.now().strftime("%Y%m%d%H%M%S")) 
     save_log(chaos_data, insights, txt_path, pdf_path)
     return "Blackmirror: New Product Generated Successfully."
 
