@@ -11,12 +11,24 @@ app = Flask(__name__)
 
 @app.route("/")
 def run_blackmirror():
+    print("[INFO] Starting to collect chaos data...")
     chaos_data = collect_chaos()
+    print(f"[INFO] Chaos data collected: {chaos_data}")
+    
+    print("[INFO] Generating insights...")
     insights = generate_insights(chaos_data)
+    print(f"[INFO] Insights generated: {insights}")
+
+    print("[INFO] Creating assets...")
     txt_path, pdf_path = create_assets(insights)
-    create_zip_bundle(txt_path, pdf_path, datetime.now().strftime("%Y%m%d%H%M%S")) 
+    print(f"[INFO] TXT Path: {txt_path}, PDF Path: {pdf_path}")
+
+    create_zip_bundle(txt_path, pdf_path, datetime.now().strftime("%Y%m%d%H%M%S"))
+    print("[INFO] ZIP bundle created.")
+
     save_log(chaos_data, insights, txt_path, pdf_path)
     return "Blackmirror: New Product Generated Successfully."
+
 
 @app.route("/download/latest")
 def download_latest_zip():
@@ -27,14 +39,19 @@ def download_latest_zip():
     latest_zip = sorted(zips)[-1]
     return send_file(os.path.join(zip_folder, latest_zip), as_attachment=True)
 
+
 @app.route("/health")
 def health_check():
-    # Run the health check script as a subprocess
     try:
-        subprocess.run(["python", "health_check.py"], check=True, capture_output=True)
+        # Run the health check script and capture the output
+        result = subprocess.run(["python", "health_check.py"], check=True, capture_output=True, text=True)
+        print(result.stdout)  # Print the output of the health check
         return jsonify({"status": "OK", "message": "All models are functioning properly."})
     except subprocess.CalledProcessError as e:
+        print(f"Health check failed with error: {e.stderr.decode()}")  # Print the error if it fails
         return jsonify({"status": "FAIL", "message": "Health check failed", "details": e.stderr.decode()}), 500
 
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8000, debug=True)  # Set debug=True
+
