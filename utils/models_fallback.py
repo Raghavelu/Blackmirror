@@ -11,7 +11,6 @@ client = OpenAI(
 
 # List of free and reliable models
 FREE_MODELS = [
-    "huggingfaceh4/zephyr-7b-beta",
     "meta-llama/llama-4-maverick:free",
     "meta-llama/llama-4-scout:free",
     "moonshotai/kimi-vl-a3b-thinking:free",
