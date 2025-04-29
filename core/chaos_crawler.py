@@ -5,8 +5,7 @@ def collect_chaos():
         "People struggle to stick to a daily routine.",
         "New entrepreneurs can't find product-market fit.",
         "Content creators burn out from posting too much.",
-        "Job seekers don't know how to stand out in tech.",
-        "Small businesses waste money on poor ads."
+        "Job seekers don't know how to stand out in tech."
     ]
 
     selected_chaos = random.choice(chaos_samples)
