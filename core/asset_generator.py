@@ -3,6 +3,7 @@ import re
 import textwrap
 from datetime import datetime
 from fpdf import FPDF
+from core.deployer import extract_title
 
 
 def clean_line(line):
@@ -20,10 +21,10 @@ def create_assets(insight_text):
     # Ensure folder exists
     os.makedirs('assets/products', exist_ok=True)
 
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    base_filename = f'product_{timestamp}'
+    base_filename = extract_title(insight_text)
     txt_path = f'assets/products/{base_filename}.txt'
     pdf_path = f'assets/products/{base_filename}.pdf'
+
 
     # Save TXT
     with open(txt_path, 'w', encoding='utf-8') as f:
