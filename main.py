@@ -41,6 +41,24 @@ def download_latest_zip():
     latest_zip = sorted(zips)[-1]
     return send_file(os.path.join(zip_folder, latest_zip), as_attachment=True)
 
+@app.route("/download/all")
+def download_all_zips():
+    zip_folder = "assets/products/"
+    all_zip_files = [f for f in os.listdir(zip_folder) if f.endswith('.zip')]
+
+    if not all_zip_files:
+        return "No ZIP files found to bundle."
+
+    temp_bundle = os.path.join(zip_folder, "all_products_bundle.zip")
+
+    # Create a new bundle of all zip files
+    import zipfile
+    with zipfile.ZipFile(temp_bundle, 'w') as bundle:
+        for zip_name in all_zip_files:
+            bundle.write(os.path.join(zip_folder, zip_name), arcname=zip_name)
+
+    return send_file(temp_bundle, as_attachment=True)
+
 
 @app.route("/health")
 def health_check():
