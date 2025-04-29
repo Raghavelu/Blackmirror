@@ -1,6 +1,6 @@
 openai
 python-dotenv
-fpdf
+fpdf2
 requests
 reportlab
 flask
