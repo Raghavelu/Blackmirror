@@ -32,9 +32,12 @@ def smart_generate(system_prompt, user_prompt, max_retries=3):
                 model=model_choice,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ]
+                     {"role": "user", "content": user_prompt},
+                ],
+                max_tokens=1200,
+                timeout=60  # ensures it doesn't hang indefinitely
             )
+
 
             # Log the successful model usage
             log_model_usage(model_choice)
