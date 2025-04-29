@@ -3,45 +3,45 @@ from core.chaos_crawler import collect_chaos
 from core.gpt_processor import generate_insights
 from core.asset_generator import create_assets
 from core.deployer import save_log, create_zip_bundle
-from utils.models_fallback import FREE_MODELS
+from utils.status_tracker import set_status, get_status
 import os
-import subprocess  
-import datetime
-
+import subprocess
+import time
+from datetime import datetime
 
 app = Flask(__name__)
 
-import time
-
 @app.route("/")
 def run_blackmirror():
-    start_time = time.time()
+    start = time.time()
+    set_status("running")
     print("[INFO] Starting generation...")
 
-    t0 = time.time()
+    # Step 1: Collect chaos
     chaos_data = collect_chaos()
-    t1 = time.time()
-    print(f"[TIMER] Chaos collected in {t1 - t0:.2f}s")
-
-    t2 = time.time()
+    print(f"[INFO] Chaos collected: {chaos_data}")
+    
+    # Step 2: Generate insight
     insights = generate_insights(chaos_data)
-    t3 = time.time()
-    print(f"[TIMER] GPT processing in {t3 - t2:.2f}s")
+    print(f"[INFO] GPT returned insights:\n{insights}")
 
-    t4 = time.time()
+    # Step 3: Create assets
     txt_path, pdf_path = create_assets(insights)
-    t5 = time.time()
-    print(f"[TIMER] Asset creation in {t5 - t4:.2f}s")
+    print(f"[INFO] Assets created: TXT = {txt_path}, PDF = {pdf_path}")
 
+    # Step 4: Create ZIP
     zip_path = create_zip_bundle(txt_path, pdf_path, insights)
-    t6 = time.time()
-    print(f"[TIMER] ZIP creation in {t6 - t5:.2f}s")
+    print(f"[INFO] ZIP bundle created: {zip_path}")
 
+    # Step 5: Save log
     save_log(chaos_data, insights, txt_path, pdf_path, zip_path)
-    total_time = time.time() - start_time
-    print(f"[TIMER] ✅ Full run completed in {total_time:.2f}s")
 
-    return "Blackmirror: New Product Generated Successfully."
+    # Finalize status
+    elapsed = round(time.time() - start, 2)
+    set_status("idle", f"{elapsed}s")
+    print(f"[TIMER] ✅ Full run completed in {elapsed}s")
+
+    return "✅ Blackmirror: Product Generated Successfully."
 
 
 @app.route("/download/latest")
@@ -53,44 +53,22 @@ def download_latest_zip():
     latest_zip = sorted(zips)[-1]
     return send_file(os.path.join(zip_folder, latest_zip), as_attachment=True)
 
-@app.route("/download/all")
-def download_all_zips():
-    zip_folder = "assets/products/"
-    all_zip_files = [f for f in os.listdir(zip_folder) if f.endswith('.zip')]
-
-    if not all_zip_files:
-        return "No ZIP files found to bundle."
-
-    temp_bundle = os.path.join(zip_folder, "all_products_bundle.zip")
-
-    # Create a new bundle of all zip files
-    import zipfile
-    with zipfile.ZipFile(temp_bundle, 'w') as bundle:
-        for zip_name in all_zip_files:
-            bundle.write(os.path.join(zip_folder, zip_name), arcname=zip_name)
-
-    return send_file(temp_bundle, as_attachment=True)
-
 
 @app.route("/health")
 def health_check():
     try:
-        # Run the health check script and capture the output
         result = subprocess.run(["python", "health_check.py"], check=True, capture_output=True, text=True)
-        print(result.stdout)  # Print the output of the health check
-        return jsonify({"status": "OK", "message": "All models are functioning properly."})
+        print(result.stdout)
+        return jsonify({"status": "OK", "message": "All models working."})
     except subprocess.CalledProcessError as e:
-        print(f"Health check failed with error: {e.stderr.decode()}")  # Print the error if it fails
-        return jsonify({"status": "FAIL", "message": "Health check failed", "details": e.stderr.decode()}), 500
+        print(f"[ERROR] Health check failed:\n{e.stderr}")
+        return jsonify({"status": "FAIL", "details": e.stderr}), 500
+
+
+@app.route("/status")
+def status():
+    return jsonify(get_status())
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)  # Set debug=True
-
-
-# Global runtime tracker
-generation_status = {"status": "idle", "last_runtime": None}
-
-@app.route("/status")
-def get_status():
-    return jsonify(generation_status)
+    app.run(host="0.0.0.0", port=8000, debug=True)
