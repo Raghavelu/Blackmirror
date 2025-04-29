@@ -33,11 +33,11 @@ def run_blackmirror():
     t5 = time.time()
     print(f"[TIMER] Asset creation in {t5 - t4:.2f}s")
 
-    create_zip_bundle(txt_path, pdf_path, datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    zip_path = create_zip_bundle(txt_path, pdf_path, insights)
     t6 = time.time()
     print(f"[TIMER] ZIP creation in {t6 - t5:.2f}s")
 
-    save_log(chaos_data, insights, txt_path, pdf_path)
+    save_log(chaos_data, insights, txt_path, pdf_path, zip_path)
     total_time = time.time() - start_time
     print(f"[TIMER] ✅ Full run completed in {total_time:.2f}s")
 
