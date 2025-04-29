@@ -12,11 +12,12 @@ client = OpenAI(
 
 # List of free and reliable models
 FREE_MODELS = [
+    "meta-llama/llama-4-scout:free",  # Very fast
     "meta-llama/llama-4-maverick:free",
-    "meta-llama/llama-4-scout:free",
-    "moonshotai/kimi-vl-a3b-thinking:free",
-    "deepseek/deepseek-r1:free"
+    "deepseek/deepseek-r1:free",      # Slower
+    "moonshotai/kimi-vl-a3b-thinking:free"
 ]
+
 
 def smart_generate(system_prompt, user_prompt, max_retries=3):
     attempts = 0
