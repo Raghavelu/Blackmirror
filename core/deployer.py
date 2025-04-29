@@ -15,10 +15,18 @@ def slugify(title):
 
 
 def extract_title(insights_text):
-    """Extract 'Title: ...' line from GPT output"""
-    match = re.search(r'^Title:\s*(.+)', insights_text, re.MULTILINE)
-    if match:
-        return slugify(match.group(1))
+    """Extracts a clean title from GPT output"""
+    # Try to match Title: "..." or Title: ...
+    patterns = [
+        r'^Title:\s*["“”]?(.*?)["“”]?\s*$',
+        r'Title:\s*["“”]?(.*?)["“”]?(?:\n|$)',
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, insights_text, re.MULTILINE)
+        if match:
+            return slugify(match.group(1))
+
+    # Fallback title
     return f"blackmirror_product_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
 
