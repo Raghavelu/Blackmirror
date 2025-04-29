@@ -11,24 +11,36 @@ import datetime
 
 app = Flask(__name__)
 
+import time
+
 @app.route("/")
 def run_blackmirror():
-    print("[INFO] Starting to collect chaos data...")
+    start_time = time.time()
+    print("[INFO] Starting generation...")
+
+    t0 = time.time()
     chaos_data = collect_chaos()
-    print(f"[INFO] Chaos data collected: {chaos_data}")
-    
-    print("[INFO] Generating insights...")
+    t1 = time.time()
+    print(f"[TIMER] Chaos collected in {t1 - t0:.2f}s")
+
+    t2 = time.time()
     insights = generate_insights(chaos_data)
-    print(f"[INFO] Insights generated: {insights}")
+    t3 = time.time()
+    print(f"[TIMER] GPT processing in {t3 - t2:.2f}s")
 
-    print("[INFO] Creating assets...")
+    t4 = time.time()
     txt_path, pdf_path = create_assets(insights)
-    print(f"[INFO] TXT Path: {txt_path}, PDF Path: {pdf_path}")
+    t5 = time.time()
+    print(f"[TIMER] Asset creation in {t5 - t4:.2f}s")
 
-    create_zip_bundle(txt_path, pdf_path, datetime.now().strftime("%Y%m%d%H%M%S"))
-    print("[INFO] ZIP bundle created.")
+    create_zip_bundle(txt_path, pdf_path, datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    t6 = time.time()
+    print(f"[TIMER] ZIP creation in {t6 - t5:.2f}s")
 
     save_log(chaos_data, insights, txt_path, pdf_path)
+    total_time = time.time() - start_time
+    print(f"[TIMER] ✅ Full run completed in {total_time:.2f}s")
+
     return "Blackmirror: New Product Generated Successfully."
 
 
@@ -75,3 +87,10 @@ def health_check():
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)  # Set debug=True
 
+
+# Global runtime tracker
+generation_status = {"status": "idle", "last_runtime": None}
+
+@app.route("/status")
+def get_status():
+    return jsonify(generation_status)
