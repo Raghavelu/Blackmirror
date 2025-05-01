@@ -6,72 +6,61 @@ from datetime import datetime
 
 LOG_FILE = 'data/chaos_logs.json'
 
-
 def slugify(title):
-    title = title.lower()
-    title = re.sub(r'[^\w\s-]', '', title)
-    title = re.sub(r'[\s_-]+', '_', title).strip('_')
-    return title
-
+    title = re.sub(r'[^\w\s-]', '', title.lower())
+    return re.sub(r'[\s_-]+', '_', title).strip('_')
 
 def extract_title(insights_text):
     patterns = [
-    r'(?i)^#*\s*Title\s*[:\-]?\s*["“”]?(.+?)["“”"]?$',  # Handles markdown headers
-    r'(?im)^Title\s*:\s*["“”]?([^\n]+?)["“”"]?$'        # Case-insensitive match
+        r'(?i)^#*\s*Title\s*[:\-]?\s*["“”]?(.+?)["“”"]?$',
+        r'(?im)^Title\s*:\s*["“”]?([^\n]+?)["“”"]?$'
     ]
     for pattern in patterns:
-        match = re.search(pattern, insights_text, re.MULTILINE)
+        match = re.search(pattern, insights_text)
         if match:
             return slugify(match.group(1))
-    return f"blackmirror_product_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    return f"product_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
-
-def save_log(chaos_text, insights, txt_path, pdf_path, zip_path):
+def save_log(chaos_text, insights, txt_path, zip_path, ebook_path, toolkit_paths):
     os.makedirs('data', exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-
     log_entry = {
-        "timestamp": timestamp,
+        "timestamp": datetime.now().isoformat(),
         "chaos": chaos_text,
-        "insights": insights,
-        "txt_file": txt_path,
-        "pdf_file": pdf_path,
-        "zip_file": zip_path
+        "assets": {
+            "summary": txt_path,
+            "ebook": ebook_path,
+            "toolkit": toolkit_paths,
+            "bundle": zip_path
+        }
     }
-
-    if not os.path.exists(LOG_FILE):
-        logs = []
-    else:
-        with open(LOG_FILE, 'r', encoding='utf-8') as f:
-            try:
+    
+    logs = []
+    if os.path.exists(LOG_FILE):
+        try:
+            with open(LOG_FILE, 'r') as f:
                 logs = json.load(f)
-            except json.JSONDecodeError:
-                logs = []
-
+        except json.JSONDecodeError:
+            pass
+    
     logs.append(log_entry)
+    with open(LOG_FILE, 'w') as f:
+        json.dump(logs, f, indent=2)
+    
+    print(f"[Deployer] Log saved: {zip_path}")
 
-    with open(LOG_FILE, 'w', encoding='utf-8') as f:
-        json.dump(logs, f, indent=4)
-
-    print(f"[Deployer] Log saved. Bundle created: {zip_path}")
-
-
-def create_zip_bundle(txt_path, pdf_path, insights_text, ebook_path=None, toolkit_paths=None, summary_path=None):
-    bundle_dir = 'assets/products'
-    os.makedirs(bundle_dir, exist_ok=True)
-
-    base_name = extract_title(insights_text)
-    zip_path = os.path.join(bundle_dir, f"{base_name}.zip")
-
+def create_zip_bundle(txt_path, ebook_path, toolkit_paths, summary_path):
+    base_name = extract_title(open(txt_path).read())
+    zip_path = f'assets/products/{base_name}.zip'
+    
     with zipfile.ZipFile(zip_path, 'w') as bundle:
-        bundle.write(txt_path, arcname=os.path.basename(txt_path))
-        bundle.write(pdf_path, arcname=os.path.basename(pdf_path))
-        if ebook_path:
-            bundle.write(ebook_path, arcname=os.path.basename(ebook_path))
+        # Mandatory files
+        bundle.write(txt_path, arcname='product_summary.txt')
+        bundle.write(ebook_path, arcname='full_ebook.pdf')
+        bundle.write(summary_path, arcname='platform_summary.txt')
+        
+        # Optional toolkit
         if toolkit_paths:
             for path in toolkit_paths:
-                bundle.write(path, arcname=os.path.basename(path))
-        if summary_path:
-            bundle.write(summary_path, arcname=os.path.basename(summary_path))
-
+                bundle.write(path, arcname=f'toolkit/{os.path.basename(path)}')
+    
     return zip_path
