@@ -27,8 +27,8 @@
 ---
 
 ## Project Structure
-Blackmirror/       
-├── assets/products/ # Final ZIPs + PDFs    
+Blackmirror/
+├── assets/products/ # Final ZIPs + PDFs   
 ├── core/ # Generators + logic
   ├── asset_generator.py
   ├── chaos_crawler.py
@@ -38,14 +38,14 @@ Blackmirror/
   ├── toolkit_generator.py
   ├── upload_summary.py
   └── product_type_decider.py
-├── data/chaos_logs.json            
-├── storage/status.json, model_usage.log            
-├── utils/models_fallback.py, status_tracker.py            
-├── main.py            
-├── config.py         
-├── health_check.py         
-├── requirements.txt            
-├── Procfile            
+├── data/chaos_logs.json
+├── storage/status.json, model_usage.log  
+├── utils/models_fallback.py, status_tracker.py
+├── main.py
+├── config.py
+├── health_check.py
+├── requirements.txt
+├── Procfile
 └── README.md
 
 
