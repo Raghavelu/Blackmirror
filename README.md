@@ -30,21 +30,21 @@
 Blackmirror/ 
 ├── assets/products/ # Final ZIPs + PDFs 
 ├── core/ # Generators + logic 
-  ├── asset_generator.py 
-  ├── chaos_crawler.py 
-  ├── deployer.py  
-  ├── gpt_processor.py  
-  ├── ebook_writer.py 
-  ├── toolkit_generator.py 
+  ├── asset_generator.py
+  ├── chaos_crawler.py
+  ├── deployer.py
+  ├── gpt_processor.py
+  ├── ebook_writer.py
+  ├── toolkit_generator.py
   ├── upload_summary.py
-  └── product_type_decider.py 
-├── data/chaos_logs.json 
-├── storage/status.json, model_usage.log 
-├── utils/models_fallback.py, status_tracker.py 
+  └── product_type_decider.py
+├── data/chaos_logs.json
+├── storage/status.json, model_usage.log
+├── utils/models_fallback.py, status_tracker.py
 ├── main.py
-├── config.py 
-├── health_check.py 
-├── requirements.txt 
+├── config.py
+├── health_check.py
+├── requirements.txt
 ├── Procfile
 └── README.md
 
