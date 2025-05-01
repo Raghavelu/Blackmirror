@@ -1,7 +1,9 @@
+flask
 openai
+requests
 python-dotenv
 fpdf2
-requests
 reportlab
-flask
 gunicorn
+pandas
+openpyxl
