@@ -16,8 +16,8 @@ def slugify(title):
 
 def extract_title(insights_text):
     patterns = [
-        r'^Title:\s*["“”]?(.*?)[“”"]?\s*$',
-        r'Title:\s*["“”]?(.*?)[“”"]?(?:\n|$)',
+    r'(?i)^#*\s*Title\s*[:\-]?\s*["“”]?(.+?)["“”"]?$',  # Handles markdown headers
+    r'(?im)^Title\s*:\s*["“”]?([^\n]+?)["“”"]?$'        # Case-insensitive match
     ]
     for pattern in patterns:
         match = re.search(pattern, insights_text, re.MULTILINE)
