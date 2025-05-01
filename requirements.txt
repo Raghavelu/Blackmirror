@@ -1,9 +1,7 @@
-flask
-openai
-requests
-python-dotenv
-fpdf2
-reportlab
-gunicorn
-pandas
-openpyxl
+flask>=3.0.0
+openai>=1.12.0
+fpdf2>=2.7.4
+python-dotenv>=1.0.0
+requests>=2.31.0
+gunicorn>=21.2.0
+python-dateutil>=2.8.2
