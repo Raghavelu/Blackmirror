@@ -2,7 +2,11 @@ from flask import Flask, send_file, jsonify
 from core.chaos_crawler import collect_chaos
 from core.gpt_processor import generate_insights
 from core.asset_generator import create_assets
+from core.ebook_writer import write_ebook
+from core.toolkit_generator import generate_toolkit
+from core.upload_summary import generate_upload_summary
 from core.deployer import save_log, create_zip_bundle
+from core.product_type_decider import decide_product_type
 from utils.status_tracker import set_status, get_status
 import os
 import subprocess
@@ -17,31 +21,50 @@ def run_blackmirror():
     set_status("running")
     print("[INFO] Starting generation...")
 
-    # Step 1: Collect chaos
+    # Step 1: Collect chaos input
     chaos_data = collect_chaos()
-    print(f"[INFO] Chaos collected: {chaos_data}")
-    
-    # Step 2: Generate insight
+
+    # Step 2: Generate product insight
     insights = generate_insights(chaos_data)
-    print(f"[INFO] GPT returned insights:\n{insights}")
 
-    # Step 3: Create assets
+    # Step 3: Generate TXT & short PDF
     txt_path, pdf_path = create_assets(insights)
-    print(f"[INFO] Assets created: TXT = {txt_path}, PDF = {pdf_path}")
 
-    # Step 4: Create ZIP
-    zip_path = create_zip_bundle(txt_path, pdf_path, insights)
-    print(f"[INFO] ZIP bundle created: {zip_path}")
+    # Step 4: Decide product type (ebook, toolkit, both)
+    product_type = decide_product_type()
+    print(f"[Decision] Product type: {product_type}")
 
-    # Step 5: Save log
+    ebook_path = None
+    toolkit_paths = []
+    summary_path = None
+
+    # Step 5: Optional eBook
+    if product_type in ["ebook", "both"]:
+        ebook_path = write_ebook(insights)
+
+    # Step 6: Optional Toolkit
+    if product_type in ["toolkit", "both"]:
+        toolkit_paths = generate_toolkit(insights)
+
+    # Step 7: Summary file for upload
+    title_line = next((line for line in insights.splitlines() if line.startswith("Title:")), "")
+    title = title_line.replace("Title:", "").strip().strip('\"')
+    description_line = next((line for line in insights.splitlines() if line.startswith("Description:")), "")
+    description = description_line.replace("Description:", "").strip()
+    summary_path = generate_upload_summary(title, description)
+
+    # Step 8: Bundle everything
+    zip_path = create_zip_bundle(txt_path, pdf_path, insights, ebook_path, toolkit_paths, summary_path)
+
+    # Step 9: Log it
     save_log(chaos_data, insights, txt_path, pdf_path, zip_path)
 
-    # Finalize status
+    # Step 10: Update runtime status
     elapsed = round(time.time() - start, 2)
     set_status("idle", f"{elapsed}s")
     print(f"[TIMER] ✅ Full run completed in {elapsed}s")
 
-    return "✅ Blackmirror: Product Generated Successfully."
+    return "✅ Blackmirror: Full Product Generated Successfully."
 
 
 @app.route("/download/latest")
