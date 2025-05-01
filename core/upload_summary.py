@@ -1,13 +1,17 @@
 import re
 from datetime import datetime
+from core.deployer import extract_title 
 
 def generate_upload_summary(insight_text):
     print("[Upload Summary] Creating platform-ready summary...")
-    
-    # Update the extract function
+
+
 def extract(pattern):
-    match = re.search(rf"{pattern}:\s*(.+?)\n\n", insight_text, re.DOTALL)
-    return match.group(1).strip() if match else "N/A"
+    try:
+        match = re.search(rf"{pattern}:\s*(.+?)\n\n", insight_text, re.DOTALL)
+        return match.group(1).strip()
+    except (AttributeError, IndexError):
+        return "Not specified"
     
     title = extract_title(insight_text).replace('_', ' ')
     price_range = re.search(r"Recommended Price: (.+)", insight_text).group(1)
