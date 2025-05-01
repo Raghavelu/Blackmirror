@@ -10,11 +10,23 @@ client = OpenAI(
 )
 
 MODEL_PRIORITY_LIST = [
-    "meta-llama/llama-4-scout:free",    # Fastest response
-    "meta-llama/llama-4-maverick:free", # Balanced
-    "deepseek/deepseek-r1:free",        # High quality
+    "meta-llama/llama-4-scout:free", 
+    "meta-llama/llama-4-maverick:free",
+    "deepseek/deepseek-r1:free",
     "mistralai/mistral-7b-instruct:free"
 ]
+
+
+VALID_MODELS = ["meta-llama/llama-4-scout:free", 
+                "meta-llama/llama-4-maverick:free",
+                "deepseek/deepseek-r1:free",
+                "mistralai/mistral-7b-instruct:free"]
+
+def validate_models():
+    for model in MODEL_PRIORITY_LIST:
+        if model not in VALID_MODELS:
+            raise ValueError(f"Invalid model in priority list: {model}")
+
 
 def smart_generate(system_prompt, user_prompt, max_retries=2):
     for model in MODEL_PRIORITY_LIST:
