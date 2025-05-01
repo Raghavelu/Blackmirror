@@ -1,31 +1,81 @@
 # Blackmirror
+**Blackmirror** is a zero-cost, AI-powered automation system that turns chaotic real-world problems into full digital products (eBooks, toolkits, summaries) — ready to upload and sell.
 
-Blackmirror automates product creation from chaotic ideas, using free AI models.
+---
+
+## ⚙️ How It Works
+
+1. Picks a real-world "chaotic" pain point.
+2. Uses OpenRouter (free LLMs) to generate insights.
+3. Automatically builds:
+   - TXT + PDF pitch
+   - Full eBook (optional)
+   - Toolkit: checklist + worksheet (optional)
+   - Gumroad-ready summary file
+4. Packages everything into a downloadable `.zip`.
+
+---
+
+## 🔑 Key Features
+
+- Chaos-to-product in one click
+- Free OpenRouter LLMs (no API cost)
+- Multiple output formats
+- Ready for Gumroad upload
+- Fully self-hosted (Railway, Fly.io)
+
+---
 
 ## Project Structure
-- `core/` → Handles chaos crawling, GPT processing, asset generation, and deployment.
-- `utils/` → Model fallbacks and health checking tools.
-- `assets/products/` → Generated product files (.txt, .pdf, .zip).
+Blackmirror/ 
+├── assets/products/ # Final ZIPs + PDFs 
+├── core/ # Generators + logic 
+  ├── asset_generator.py 
+  ├── chaos_crawler.py 
+  ├── deployer.py  
+  ├── gpt_processor.py  
+  ├── ebook_writer.py 
+  ├── toolkit_generator.py 
+  ├── upload_summary.py
+  └── product_type_decider.py 
+├── data/chaos_logs.json 
+├── storage/status.json, model_usage.log 
+├── utils/models_fallback.py, status_tracker.py 
+├── main.py
+├── config.py 
+├── health_check.py 
+├── requirements.txt 
+├── Procfile
+└── README.md
 
-## Key Features
-- Generates a full product twice a day (auto).
-- Health-checks AI models before running.
-- Allows manual generation anytime via web interface.
-- Download the latest products as a ZIP bundle.
 
-## Endpoints
-| Path | Description |
-|:-----|:------------|
-| `/` | Run Blackmirror manually. |
-| `/download/latest` | Download the latest generated product as a ZIP file. |
-| `/health` | Run model health check. |
+---
 
-## Setup
-1. Deploy to the Railway.
-2. Set `OPENROUTER_API_KEY` in environment variables.
-3. Set Cron Schedule to run daily at 09:00 UTC.
-4. Set Healthcheck Path as `/health`.
-5. Use UptimeRobot to trigger again at 21:00 UTC.
+## 🚀 API Endpoints
+
+| Method | Route              | Description                          |
+|--------|--------------------|--------------------------------------|
+| GET    | `/`                | Generate a new product bundle        |
+| GET    | `/download/latest` | Download the most recent .zip file   |
+| GET    | `/health`          | Check model availability             |
+| GET    | `/status`          | Check last runtime + generation status |
+
+---
+
+## 🛠 Setup (Railway / Fly.io)
+
+1. Fork + upload project to GitHub
+2. Add environment variable:
+3. Deploy using Railway or Fly.io
+4. Hit `/` to trigger product generation
+
+---
+
+🧩 Built to harvest signal from noise — and turn it into profit.
+
 
 ## License
 MIT License
+
+
+
