@@ -8,7 +8,7 @@ from datetime import datetime
 def sanitize_pdf_text(text):
     # Replace problematic Unicode characters
     replacements = {
-        '\u2013': '-',
+        '\u2013': '-', 
         '\u2019': "'",
         '\u201c': '"',
         '\u201d': '"'
@@ -27,6 +27,7 @@ def generate_ebook_content(insight_text):
 5. Actionable Worksheets
 6. Resource Appendix
 7. About the Author"""
+    
     return smart_generate(system_prompt, insight_text)
 
 def validate_pdf(path):
