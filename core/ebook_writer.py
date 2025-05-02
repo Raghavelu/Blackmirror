@@ -32,12 +32,6 @@ def write_ebook(insight_text):
         filename = f"assets/products/{title}_ebook.pdf"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        # Add final binary check
-        with open(filename, 'rb') as f:
-        content = f.read()
-        if b'\x9c' in content:
-            raise ValueError("Found invalid byte in PDF content")
-
         # Generate and sanitize content
         raw_content = generate_ebook_content(insight_text)
         clean_content = sanitize_text(raw_content)
@@ -89,14 +83,17 @@ def write_ebook(insight_text):
             else:
                 safe_add(section, 12)
 
-        # Finalize
+        # Finalize PDF
         pdf.output(filename)
+        
+        # Add validation AFTER PDF is created
+        with open(filename, 'rb') as f:
+            content = f.read()
+            if b'\x9c' in content:
+                raise ValueError("Found invalid byte in PDF content")
+                
         if not validate_pdf(filename):
             raise ValueError("PDF validation failed")
             
         print(f"[eBook Writer] Generated {filename} ({pdf.page_no()} pages)")
         return filename
-
-    except Exception as e:
-        print(f"[CRITICAL ERROR] eBook Generation Failed: {str(e)}")
-        raise
