@@ -1,1 +1,1 @@
-gunicorn main:app --worker-class gevent --timeout 300
+python main:app --worker-class gevent --timeout 300
