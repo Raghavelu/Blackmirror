@@ -7,7 +7,7 @@ let
     ps.fpdf2
     ps.python-dotenv
     ps.requests
-    ps.gunicorn  # Explicitly included
+    ps.gunicorn
     ps.python-dateutil
     ps.gevent
     ps.numpy
@@ -24,12 +24,13 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Create start script with absolute paths
-    cat > start.sh <<EOF
+    # Create start script in persistent app directory
+    mkdir -p /app
+    cat > /app/start.sh <<EOF
     #!/bin/sh
     export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
     exec "${pythonEnv}/bin/gunicorn" main:app --timeout 300 --bind 0.0.0.0:\$PORT
     EOF
-    chmod +x start.sh
+    chmod +x /app/start.sh
   '';
 }
