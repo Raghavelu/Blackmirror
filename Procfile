@@ -1,1 +1,1 @@
-gunicorn main:app --timeout 300 --preload --worker-class gevent
+web: gunicorn main:app --worker-class gevent --timeout 300 --bind 0.0.0.0:$PORT --preload
