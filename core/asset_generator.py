@@ -1,6 +1,7 @@
 import os
 import re
 from core.deployer import extract_title
+from core.ebook_writer import sanitize_pdf_text
 
 def clean_content(text):
     # Preserve basic structure while removing problematic characters
@@ -13,12 +14,13 @@ def create_assets(insight_text):
     print("[Asset Generator] Creating TXT summary...")
     os.makedirs('assets/products', exist_ok=True)
     
-    base_filename = extract_title(insight_text)
+    # Add sanitization before saving
+    clean_content = sanitize_pdf_text(insight_text)
+    base_filename = extract_title(clean_content)
     txt_path = f'assets/products/{base_filename}.txt'
     
     with open(txt_path, 'w', encoding='utf-8') as f:
-        cleaned_content = clean_content(insight_text)
-        f.write(cleaned_content)
+        f.write(clean_content)
     
     print(f"[Asset Generator] Saved TXT: {txt_path}")
     return txt_path
