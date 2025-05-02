@@ -25,6 +25,7 @@ pkgs.mkShell {
 
   shellHook = ''
     # Set critical environment variables
+    export PATH="${pythonEnv}/bin:$PATH"
     export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
     export FONTCONFIG_FILE="${pkgs.fontconfig.out}/etc/fonts/fonts.conf"
   '';
