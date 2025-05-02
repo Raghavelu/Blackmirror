@@ -1,21 +1,17 @@
 import re
 
 def sanitize_text(text):
-    """Universal text cleaner for all content generation"""
-    # Remove invalid Unicode ranges
-    text = re.sub(r'[^\x00-\x7F\u00A0-\uD7FF\uE000-\uFFFD\U00010000-\U0010FFFF]', '', text)
+    """Ultimate text sanitization with multiple fallbacks"""
+    # Convert to bytes and back to clean binary artifacts
+    text = text.encode('utf-8', 'surrogateescape').decode('utf-8', 'replace')
     
-    # Replace problematic characters
-    replacements = {
-        '\x9c': '',  # STRING TERMINATOR
-        '\u2013': '-', '\u2014': '--',
-        '\u2018': "'", '\u2019': "'",
-        '\u201c': '"', '\u201d': '"',
-        '\u2026': '...', '\u00a0': ' ',
-        '\u200b': ''  # Zero-width space
-    }
-    for k, v in replacements.items():
-        text = text.replace(k, v)
+    # Remove invalid Unicode characters
+    text = re.sub(r'[^\x00-\x7F\u00A0-\uD7FF\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', text)
     
-    # Force valid UTF-8 encoding
+    # Explicitly remove problematic control characters
+    control_chars = ''.join(map(chr, list(range(0,32)) + list(range(127,160)))
+    control_chars = control_chars.replace('\n', '').replace('\t', '')
+    text = text.translate(str.maketrans('', '', control_chars))
+    
+    # Force valid UTF-8 with replacement
     return text.encode('utf-8', 'replace').decode('utf-8')
