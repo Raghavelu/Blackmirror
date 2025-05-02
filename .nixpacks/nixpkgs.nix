@@ -23,13 +23,12 @@ pkgs.mkShell {
     pkgs.stdenv.cc.cc.lib
   ];
 
-  shellHook = ''
-    # Permanent environment setup
+   shellHook = ''
     export PATH="${pythonEnv}/bin:$PATH"
+    export PATH="${HOME}/.nix-profile/bin:$PATH"
     export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
     export FONTCONFIG_FILE="${pkgs.fontconfig}/etc/fonts/fonts.conf"
-    
-    # Verify installations
+
     echo "=== Installed Python Packages ==="
     pip list
     echo "================================="
