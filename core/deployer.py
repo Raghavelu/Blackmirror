@@ -3,7 +3,6 @@ import os
 import zipfile
 import re
 from datetime import datetime
-from core.utils import sanitize_text
 
 LOG_FILE = 'data/chaos_logs.json'
 
