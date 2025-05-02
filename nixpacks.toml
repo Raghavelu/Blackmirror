@@ -10,9 +10,9 @@ nixPkgs = [
 [phases.install]
 commands = [
     "fc-cache -f -v",
-    # Ensure script is copied to final location
-    "cp $out/app/start.sh . && chmod +x start.sh"
+    "test -f /app/start.sh && echo 'Start script exists' || echo 'Missing start script'",
+    "ls -l /app"
 ]
 
 [phases.start]
-cmd = "./start.sh"
+cmd = "/app/start.sh"
