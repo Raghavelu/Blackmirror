@@ -24,17 +24,13 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-  # Set explicit font paths
-  export FONTCONFIG_FILE=${pkgs.fontconfig.out}/etc/fonts/fonts.conf
-  export FONTCONFIG_PATH=${pkgs.fontconfig.out}/etc/fonts/
-  
-  # Create start script
-  mkdir -p /app
-  cat > /app/start.sh <<EOF
-  #!/bin/sh
-  export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
-  exec "${pythonEnv}/bin/gunicorn" main:app --timeout 300 --bind 0.0.0.0:\$PORT
-  EOF
-  chmod +x /app/start.sh
+    # Create start script directly in app root
+    mkdir -p $out/app
+    cat > $out/app/start.sh <<EOF
+    #!/bin/sh
+    export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
+    exec "${pythonEnv}/bin/gunicorn" main:app --timeout 300 --bind 0.0.0.0:\$PORT
+    EOF
+    chmod +x $out/app/start.sh
   '';
 }
