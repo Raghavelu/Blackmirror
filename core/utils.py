@@ -1,4 +1,3 @@
-# core/utils.py
 import re
 
 def sanitize_text(text):
@@ -8,10 +7,12 @@ def sanitize_text(text):
     
     # Replace problematic characters
     replacements = {
-        '\x9c': '',  # STRING TERMINATOR character
+        '\x9c': '',  # STRING TERMINATOR
         '\u2013': '-', '\u2014': '--',
         '\u2018': "'", '\u2019': "'",
-        '\u201c': '"', '\u201d': '"'
+        '\u201c': '"', '\u201d': '"',
+        '\u2026': '...', '\u00a0': ' ',
+        '\u200b': ''  # Zero-width space
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
