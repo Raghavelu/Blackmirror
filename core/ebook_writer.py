@@ -6,15 +6,14 @@ import os
 import textwrap
 
 # Font configuration - Railway compatible
-FONT_PATH = "/app/.fonts/dejavu/DejaVuSans.ttf"
+FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
 def _ensure_font():
-    """Verify font exists (Railway handles installation via Nix)"""
     if not os.path.exists(FONT_PATH):
-        raise FileNotFoundError(
-            "DejaVu font not found. Verify nixpacks.toml configuration."
+        raise RuntimeError(
+            "Font installation failed. Verify nixpacks.toml configuration.\n" 
+            "Expected path: " + FONT_PATH
         )
-
 # Call once at startup
 _ensure_font()
 
