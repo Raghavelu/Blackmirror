@@ -1,17 +1,17 @@
 with (import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/23.11.tar.gz") {});
 
 let
-  pythonEnv = pkgs.python311.withPackages (ps: [
-    ps.flask
-    ps.openai
-    ps.fpdf2
-    ps.python-dotenv
-    ps.requests
-    ps.gunicorn
-    ps.python-dateutil
-    ps.gevent
-    ps.numpy
-    ps.chardet
+  pythonEnv = pkgs.python311.withPackages (ps: with ps; [
+    flask
+    openai
+    fpdf2
+    python-dotenv
+    requests
+    gunicorn
+    python-dateutil
+    gevent
+    numpy
+    chardet
   ]);
 in
 pkgs.mkShell {
@@ -24,9 +24,13 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Set critical environment variables
+    # Set critical paths
     export PATH="${pythonEnv}/bin:$PATH"
     export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
-    export FONTCONFIG_FILE="${pkgs.fontconfig.out}/etc/fonts/fonts.conf"
+    export FONTCONFIG_FILE="${pkgs.fontconfig}/etc/fonts/fonts.conf"
+    
+    # Verify installation
+    echo "➤ Installed Python packages:"
+    pip list
   '';
 }
