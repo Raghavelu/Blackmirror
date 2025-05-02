@@ -9,10 +9,8 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    "fc-cache -f -v",
-    "test -f /app/start.sh && echo 'Start script exists' || echo 'Missing start script'",
-    "ls -l /app"
+    "fc-cache -f -v"
 ]
 
 [phases.start]
-cmd = "/app/start.sh"
+cmd = "gunicorn main:app --timeout 300 --bind 0.0.0.0:$PORT"
