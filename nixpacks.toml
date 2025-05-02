@@ -1,14 +1,16 @@
 [phases.setup]
 nixPkgs = [
-    "dejavu_fonts",  # Correct Nix package name with underscore
-    "fontconfig"      # Required for font configuration
+    "dejavu_fonts",
+    "fontconfig"
 ]
 
 [phases.install]
 commands = [
-    # Install fonts to system location
-    "mkdir -p /usr/share/fonts/truetype/",
-    "cp -r ${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu /usr/share/fonts/truetype/",
+    # Get font path using nix-shell and copy fonts
+    "nix-shell -p dejavu_fonts --run 'cp -r $out/share/fonts/truetype/dejavu /usr/share/fonts/truetype/'",
+    
+    # Verify installation
+    "ls -l /usr/share/fonts/truetype/dejavu",
     
     # Rebuild font cache
     "fc-cache -f -v"
