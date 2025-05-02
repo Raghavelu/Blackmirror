@@ -32,7 +32,7 @@ def write_ebook(insight_text):
         filename = f"assets/products/{title}_ebook.pdf"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        # Generate and sanitize content
+        # Generate and sanitize content FIRST
         raw_content = generate_ebook_content(insight_text)
         clean_content = sanitize_text(raw_content)
         
@@ -43,7 +43,6 @@ def write_ebook(insight_text):
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=25)
         effective_width = pdf.w - 2*pdf.l_margin
-        
 
         def safe_add(text, font_size=12, style=''):
             """Universal safe text addition"""
@@ -97,3 +96,7 @@ def write_ebook(insight_text):
             
         print(f"[eBook Writer] Generated {filename} ({pdf.page_no()} pages)")
         return filename
+
+    except Exception as e:
+        print(f"[CRITICAL ERROR] eBook Generation Failed: {str(e)}")
+        raise
