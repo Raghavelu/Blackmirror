@@ -9,7 +9,7 @@ def sanitize_text(text):
     text = re.sub(r'[^\x00-\x7F\u00A0-\uD7FF\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', text)
     
     # Explicitly remove problematic control characters
-    control_chars = ''.join(map(chr, list(range(0,32)) + list(range(127,160)))
+    control_chars = ''.join(map(chr, list(range(0,32)) + list(range(127,160))))
     control_chars = control_chars.replace('\n', '').replace('\t', '')
     text = text.translate(str.maketrans('', '', control_chars))
     
