@@ -50,15 +50,16 @@ def write_ebook(insight_text):
         pdf.set_auto_page_break(auto=True, margin=25)
         pdf.add_page()
         
-        # Configure safe rendering
+        # Configure safe rendering with explicit dimensions
         pdf.set_font("Arial", size=12)
         pdf.set_doc_option('core_fonts_encoding', 'utf-8')
-    
+        effective_page_width = pdf.w - 2*pdf.l_margin  # Calculate available width
+
         # Title Page
         pdf.set_font('Arial', 'B', 24)
         pdf.cell(0, 40, title, 0, 1, 'C')
         pdf.ln(30)
-    
+
         # Table of Contents
         pdf.add_page()
         pdf.set_font('Arial', 'B', 16)
@@ -67,7 +68,8 @@ def write_ebook(insight_text):
         
         chapters = [line for line in full_content.split('\n') if line.startswith('Chapter')]
         for idx, chapter in enumerate(chapters[:10]):
-            pdf.cell(0, 8, f"{idx+1}. {chapter[8:].strip()}", 0, 1)
+            safe_text = chapter[8:].strip().encode('latin-1', 'replace').decode('latin-1')
+            pdf.cell(0, 8, f"{idx+1}. {safe_text}", 0, 1)
 
         # Main Content with Safe Wrapping
         paragraphs = [p.strip() for p in full_content.split('\n\n')]
@@ -78,12 +80,16 @@ def write_ebook(insight_text):
                 pdf.cell(0, 10, para.strip(), 0, 1)
                 pdf.set_font('Arial', '', 12)
             else:
-                wrapped = textwrap.wrap(para, width=100)
+                # Use calculated page width for wrapping
+                wrapped = textwrap.wrap(para, width=int(effective_page_width/2.5))  # ~80 chars
                 for line in wrapped:
                     try:
-                        pdf.multi_cell(0, 8, line)
-                    except:
-                        pdf.multi_cell(0, 8, line.encode('latin-1', 'replace').decode('latin-1'))
+                        # Use explicit width for multi_cell
+                        pdf.multi_cell(effective_page_width, 8, line)
+                    except Exception as e:
+                        # Fallback rendering
+                        safe_line = line.encode('latin-1', 'replace').decode('latin-1')
+                        pdf.multi_cell(effective_page_width, 8, safe_line)
                 pdf.ln(5)
 
         pdf.output(filename)
