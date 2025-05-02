@@ -1,4 +1,5 @@
 from utils.models_fallback import smart_generate
+from utils.utils import sanitize_text
 
 def validate_insights(insights):
     required = {'Title', 'Description', 'Target Audience', 'Key Benefits', 'Format'}
@@ -21,6 +22,9 @@ Core Features:
 - Feature 2
 Format: [eBook/Video Course/Toolkit Bundle]
 Recommended Price: [$X-X range]"""
+
+    insights = smart_generate(system_prompt, chaos_text)
+    return sanitize_text(insights)
 
     for _ in range(3):  # Retry up to 3 times
         insights = smart_generate(system_prompt, chaos_text)
