@@ -1,27 +1,27 @@
 import re
 from datetime import datetime
-from core.deployer import extract_title 
+from core.deployer import extract_title
+
+def extract_field(pattern, text):
+    try:
+        match = re.search(rf"{pattern}:\s*(.+?)\n\n", text, re.DOTALL)
+        return match.group(1).strip() if match else "Not specified"
+    except Exception as e:
+        print(f"Extraction error: {str(e)}")
+        return "N/A"
 
 def generate_upload_summary(insight_text):
     print("[Upload Summary] Creating platform-ready summary...")
-
-
-def extract(pattern):
-    try:
-        match = re.search(rf"{pattern}:\s*(.+?)\n\n", insight_text, re.DOTALL)
-        return match.group(1).strip()
-    except (AttributeError, IndexError):
-        return "Not specified"
     
     title = extract_title(insight_text).replace('_', ' ')
-    price_range = re.search(r"Recommended Price: (.+)", insight_text).group(1)
+    price_range = extract_field(r"Recommended Price", insight_text)
     
     summary = f"""---MARKETING COPY---
 Title: {title}
-Description: {extract('Description')}
-Audience: {extract('Target Audience')}
+Description: {extract_field('Description', insight_text)}
+Audience: {extract_field('Target Audience', insight_text)}
 Price: {price_range}
-Format: {extract('Format')}
+Format: {extract_field('Format', insight_text)}
 Release Date: {datetime.now().strftime('%Y-%m-%d')}
 Tags: {', '.join(re.findall(r'\b\w+\b', title)[:5])}
 
