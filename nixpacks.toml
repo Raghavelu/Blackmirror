@@ -9,8 +9,9 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    # Remove the '-y' flag which requires a sysroot argument
-    "fc-cache -f -v"  
+    "fc-cache -f -v",
+    # Ensure script is copied to final location
+    "cp $out/app/start.sh . && chmod +x start.sh"
 ]
 
 [phases.start]
