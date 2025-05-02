@@ -19,67 +19,37 @@ def run_blackmirror():
     set_status("running")
     
     try:
-        # 1. Identify Core Problem
+        # Generation pipeline
         chaos = collect_chaos()
-        
-        # 2. Generate Product Concept
         insights = generate_insights(chaos)
-        
-        # 3. Create Base Assets
         txt_path = create_assets(insights)
-        
-        # 4. Generate Expanded eBook
         ebook_path = write_ebook(insights)
-        
-        # 5. Conditionally Create Toolkit
         product_type = decide_product_type()
         toolkit_paths = generate_toolkit(insights) if product_type == "both" else []
-        
-        # 6. Create Platform Summary
         summary_path = generate_upload_summary(insights)
-        
-        # 7. Bundle Assets
         zip_path = create_zip_bundle(txt_path, ebook_path, toolkit_paths, summary_path)
         
-        # 8. Log Generation
+        # Logging and response
         save_log(chaos, insights, txt_path, zip_path, ebook_path, toolkit_paths)
-        
-        # 9. Finalize
         elapsed = time.time() - start_time
         set_status("idle", f"{elapsed:.1f}s")
+        
         return jsonify({
             "status": "success",
-            "bundle": zip_path,
-            "components": {
-                "ebook": os.path.basename(ebook_path),
-                "toolkit": [os.path.basename(p) for p in toolkit_paths]
-            }
+            "bundle": os.path.basename(zip_path),
+            "pages": open(ebook_path).read().count('\x0c')  # Count PDF pages
         })
     
     except Exception as e:
         set_status("error")
-        return jsonify({"status": "error", "message": str(e)}), 500
+        print(f"CRITICAL ERROR: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": "Generation failed",
+            "error": str(e)[:100]
+        }), 500
 
-@app.route("/download/latest")
-def download_latest():
-    zips = sorted([
-        f for f in os.listdir('assets/products') 
-        if f.endswith('.zip')
-    ], key=lambda x: os.path.getctime(os.path.join('assets/products', x)))
-    
-    if not zips:
-        return jsonify({"error": "No bundles available"}), 404
-    
-    latest = zips[-1]
-    return send_file(
-        os.path.join('assets/products', latest),
-        as_attachment=True,
-        download_name=f"blackmirror_{latest}"
-    )
-
-@app.route("/status")
-def status():
-    return jsonify(get_status())
+# ... keep other routes the same ...
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
