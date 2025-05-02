@@ -5,6 +5,21 @@ from core.utils import sanitize_text
 import os
 import textwrap
 
+# Font configuration - Railway compatible
+FONT_URL = "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf"
+FONT_PATH = os.path.join(os.path.dirname(__file__), "fonts", "DejaVuSans.ttf")
+
+def _ensure_font():
+    """Download font if missing (Railway ephemeral storage fix)"""
+    if not os.path.exists(FONT_PATH):
+        os.makedirs(os.path.dirname(FONT_PATH), exist_ok=True)
+        response = requests.get(FONT_URL)
+        with open(FONT_PATH, 'wb') as f:
+            f.write(response.content)
+
+# Call once at startup
+_ensure_font()
+
 def generate_ebook_content(insight_text):
     system_prompt = """Expand into an 80-100 page eBook with:
 1. Title Page
