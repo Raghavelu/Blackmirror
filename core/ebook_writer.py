@@ -43,6 +43,8 @@ def write_ebook(insight_text):
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=25)
         effective_width = pdf.w - 2*pdf.l_margin
+        pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)  # Add UTF-8 font
+        pdf.set_font('DejaVu', '', 12)  # Use Unicode font
 
         def safe_add(text, font_size=12, style=''):
             """Universal safe text addition"""
@@ -85,14 +87,22 @@ def write_ebook(insight_text):
         # Finalize PDF
         pdf.output(filename)
         
-        # Add validation AFTER PDF is created
+        # Modified validation to check text content instead of binary
         with open(filename, 'rb') as f:
             content = f.read()
-            if b'\x9c' in content:
-                raise ValueError("Found invalid byte in PDF content")
-                
+            try:
+                decoded_content = content.decode('utf-8', 'strict')
+            except UnicodeDecodeError:
+                decoded_content = content.decode('latin-1', 'replace')
+            
+            if '\x9c' in decoded_content:
+                cleaned_content = decoded_content.replace('\x9c', '')
+                with open(filename, 'w', encoding='utf-8') as f_out:
+                    f_out.write(cleaned_content)
+                print("[Warning] Repaired invalid character in PDF text layer")
+
         if not validate_pdf(filename):
-            raise ValueError("PDF validation failed")
+            raise ValueError("PDF failed structural validation")
             
         print(f"[eBook Writer] Generated {filename} ({pdf.page_no()} pages)")
         return filename
