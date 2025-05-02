@@ -59,7 +59,7 @@ def write_ebook(insight_text):
     
     chapters = [line for line in full_content.split('\n') if line.startswith('Chapter')]
     for idx, chapter in enumerate(chapters[:10]):
-        pdf.cell(0, 8, f"{idx+1}. {chapter[8:].strip()", 0, 1)
+        pdf.cell(0, 8, f"{idx+1}. {chapter[8:].strip()}", 0, 1)  # Fixed the missing }
 
     # Main Content with Safe Wrapping
     paragraphs = [p.strip() for p in full_content.split('\n\n')]
