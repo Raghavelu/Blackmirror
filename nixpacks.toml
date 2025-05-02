@@ -9,7 +9,9 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    "fc-cache -f -v"
+    "fc-cache -f -v",
+    # Ensure Python environment is activated
+    "echo 'PYTHONPATH=${pythonEnv}/${pythonEnv.sitePackages}' >> .env"
 ]
 
 [phases.start]
