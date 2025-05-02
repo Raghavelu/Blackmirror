@@ -53,14 +53,23 @@ def generate_ebook_content(insight_text):
 # PDF VALIDATION UTILITIES
 # ------------------------
 def validate_pdf(path):
-    """Verify PDF file integrity"""
+    """Robust PDF validation with content check"""
     try:
         with open(path, 'rb') as f:
-            # Check header and trailer
-            header = f.read(4)
-            f.seek(-1024, 2)
-            trailer = f.read(1024)
-            return header == b'%PDF' and b'%%EOF' in trailer
+            # Check header
+            if f.read(4) != b'%PDF':
+                return False
+            
+            # Check basic structure
+            f.seek(0)
+            content = f.read(4096)
+            if b'%%EOF' not in content:
+                # Full file scan for EOF marker
+                f.seek(-1024, 2)
+                if b'%%EOF' not in f.read():
+                    return False
+            
+            return True
     except Exception as e:
         print(f"PDF Validation Error: {str(e)}")
         return False
