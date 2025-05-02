@@ -9,10 +9,9 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    "mkdir -p /app/fonts",
-    "ln -sf /nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu/* /app/fonts/",
-    "fc-cache -f -v"
+    "fc-cache -f -v",
+    "ln -sf /nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu /app/fonts"
 ]
 
 [phases.start]
-cmd = "start-app"
+cmd = "gunicorn main:app --timeout 300 --bind 0.0.0.0:$PORT"
