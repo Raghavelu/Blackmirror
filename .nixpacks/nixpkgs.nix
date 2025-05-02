@@ -3,8 +3,8 @@ pkgs.mkShell {
     buildInputs = [
         pkgs.python311
         pkgs.python311Packages.pip
+        pkgs.python311Packages.gunicorn  # Correct package path
         pkgs.dejavu_fonts
         pkgs.fontconfig
-        pkgs.gunicorn
     ];
 }
