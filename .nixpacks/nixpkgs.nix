@@ -24,13 +24,15 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Direct font path export
-    export FPDF_FONT_DIR="${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu"
+    # Create wrapper script with environment setup
+    mkdir -p $out/bin
+    cat > $out/bin/start-app <<EOF
+    #!/bin/sh
+    export PATH="${pythonEnv}/bin:\$PATH"
+    export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
     export FONTCONFIG_FILE="${pkgs.fontconfig}/etc/fonts/fonts.conf"
-    
-    # Verify font existence
-    echo "Font verification:"
-    ls -l ${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu/DejaVuSans.ttf
-    fc-list | grep DejaVu
+    exec gunicorn main:app --timeout 300 --bind 0.0.0.0:\$PORT
+    EOF
+    chmod +x $out/bin/start-app
   '';
 }
