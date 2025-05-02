@@ -1,42 +1,27 @@
 import re
-from datetime import datetime
 from core.deployer import extract_title
-from core.ebook_writer import sanitize_pdf_text
-
-def extract_field(pattern, text):
-    try:
-        match = re.search(rf"{pattern}:\s*(.+?)\n\n", text, re.DOTALL)
-        return match.group(1).strip() if match else "Not specified"
-    except Exception as e:
-        print(f"Extraction error: {str(e)}")
-        return "N/A"
+from core.utils import sanitize_text
 
 def generate_upload_summary(insight_text):
-    """Create platform summary with sanitized input"""
-    print("[Upload Summary] Creating platform-ready summary...")
+    print("[Upload Summary] Creating platform summary...")
+    clean_text = sanitize_text(insight_text)
     
-    # Sanitize input first
-    clean_text = sanitize_pdf_text(insight_text)
+    def extract(pattern):
+        match = re.search(rf"{pattern}:\s*(.+?)\n\n", clean_text, re.DOTALL)
+        return match.group(1).strip() if match else "N/A"
     
-    # Rest of the function using clean_text instead of insight_text
-    title = extract_title(clean_text).replace('_', ' ')
+    title = sanitize_text(extract_title(clean_text).replace('_', ' '))
+    price = re.search(r"Recommended Price:\s*(.+)", clean_text)
     
-    summary = f"""---MARKETING COPY---
-Title: {title}
-Description: {extract_field('Description', insight_text)}
-Audience: {extract_field('Target Audience', insight_text)}
-Format: {extract_field('Format', insight_text)}
-Release Date: {datetime.now().strftime('%Y-%m-%d')}
-Tags: {', '.join(re.findall(r'\b\w+\b', title)[:5])}
+    summary = f"""Title: {title}
+Description: {extract('Description')}
+Audience: {extract('Target Audience')}
+Price: {price.group(1) if price else '$19'}
+Format: {extract('Format')}
+Pages: {len(clean_text.split()) // 300}"""  # Approximate pages
 
----CONTENT DETAILS---
-Word Count: {len(insight_text.split())}
-Sections: {len(re.findall(r'## ', insight_text))}
-Worksheets: {2 if 'Toolkit' in insight_text else 1}
-"""
-
-    filename = f"assets/products/{extract_title(insight_text)}_summary.txt"
-    with open(filename, 'w') as f:
+    filename = f"assets/products/{extract_title(clean_text)}_summary.txt"
+    with open(filename, 'w', encoding='utf-8', errors='replace') as f:
         f.write(summary)
     
     return filename
