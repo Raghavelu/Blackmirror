@@ -1,11 +1,11 @@
 #!/bin/sh
-# Initialize Nix environment
-nix-channel --add https://nixos.org/channels/nixpkgs-23.11 nixpkgs
-nix-channel --update
+# Initialize Python environment
+python -m venv venv
+source venv/bin/activate
 
-# Build using Nix dependencies
-nix-build .nixpacks/nixpkgs.nix -o deps
+# Install Python dependencies
+pip install -r requirements.txt
 
-# Link fonts
-ln -sf deps/share/fonts/truetype/dejavu /usr/share/fonts/truetype/
+# Font configuration
+ln -sf ${DEJAVU_FONT_DIR:-/nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu} /usr/share/fonts/truetype/
 fc-cache -f -v
