@@ -6,16 +6,14 @@ import os
 import textwrap
 
 # Font configuration - Railway compatible
-FONT_URL = "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf"
-FONT_PATH = os.path.join(os.path.dirname(__file__), "fonts", "DejaVuSans.ttf")
+FONT_PATH = "/app/.fonts/dejavu/DejaVuSans.ttf"
 
 def _ensure_font():
-    """Download font if missing (Railway ephemeral storage fix)"""
+    """Verify font exists (Railway handles installation via Nix)"""
     if not os.path.exists(FONT_PATH):
-        os.makedirs(os.path.dirname(FONT_PATH), exist_ok=True)
-        response = requests.get(FONT_URL)
-        with open(FONT_PATH, 'wb') as f:
-            f.write(response.content)
+        raise FileNotFoundError(
+            "DejaVu font not found. Verify nixpacks.toml configuration."
+        )
 
 # Call once at startup
 _ensure_font()
@@ -58,8 +56,7 @@ def write_ebook(insight_text):
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=25)
         effective_width = pdf.w - 2*pdf.l_margin
-        pdf.add_font('DejaVu', '', 'DejaVuSans.ttf', uni=True)  # Add UTF-8 font
-        pdf.set_font('DejaVu', '', 12)  # Use Unicode font
+        pdf.add_font('DejaVu', '', FONT_PATH, uni=True)
 
         def safe_add(text, font_size=12, style=''):
             """Universal safe text addition"""
