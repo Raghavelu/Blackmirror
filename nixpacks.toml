@@ -1,16 +1,6 @@
 [phases.setup]
 nixPkgs = [
     "python311",
-    "python311Packages.flask",
-    "python311Packages.openai", 
-    "python311Packages.fpdf2",
-    "python311Packages.python-dotenv",
-    "python311Packages.requests",
-    "python311Packages.gunicorn",
-    "python311Packages.python-dateutil",
-    "python311Packages.gevent",
-    "python311Packages.numpy",
-    "python311Packages.chardet",
     "dejavu_fonts",
     "fontconfig",
     "zlib",
@@ -19,7 +9,7 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    "fc-cache -f -v"  # Only font setup needed
+    "fc-cache -f -v"
 ]
 
 [phases.start]
