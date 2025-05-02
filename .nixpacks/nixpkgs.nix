@@ -12,7 +12,6 @@ let
     ps.gevent
     ps.numpy
     ps.chardet
-    ps.setuptools
   ]);
 in
 pkgs.mkShell {
@@ -26,6 +25,6 @@ pkgs.mkShell {
 
   shellHook = ''
     export PYTHONPATH=${pythonEnv}/${pythonEnv.sitePackages}
-    export PATH="${pythonEnv}/bin:$PATH"
+    echo "➤ Python environment ready at ${pythonEnv}"
   '';
 }
