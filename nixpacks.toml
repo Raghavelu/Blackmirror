@@ -9,9 +9,7 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    "fc-cache -f -v",
-    # Ensure script persists through build phases
-    "cp /app/start.sh . && chmod +x start.sh"
+    "fc-cache -f -v -y"  # Force rebuild font cache
 ]
 
 [phases.start]
