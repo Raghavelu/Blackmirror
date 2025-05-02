@@ -8,12 +8,8 @@ nixPkgs = [
 ]
 
 [phases.install]
-commands = [
-    "pip install --upgrade pip setuptools wheel",
-    "pip install -r requirements.txt",
-    "fc-cache -f -v",
-    "ln -sf /nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu /app/fonts"
-]
+commands = ["bash build.sh"]
+
 
 [phases.start]
 cmd = "gunicorn main:app --timeout 300 --bind 0.0.0.0:$PORT"
