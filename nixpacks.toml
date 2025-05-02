@@ -1,10 +1,18 @@
 [phases.setup]
 nixPkgs = [
-    "dejavu-fonts"
+    "dejavu_fonts",  # Correct Nix package name with underscore
+    "fontconfig"      # Required for font configuration
 ]
 
 [phases.install]
 commands = [
-    "mkdir -p /app/.fonts",
-    "cp -r /run/current-system/sw/share/fonts/truetype/dejavu /app/.fonts/"
+    # Install fonts to system location
+    "mkdir -p /usr/share/fonts/truetype/",
+    "cp -r ${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu /usr/share/fonts/truetype/",
+    
+    # Rebuild font cache
+    "fc-cache -f -v"
 ]
+
+[phases.start]
+cmd = "gunicorn main:app --timeout 300"
