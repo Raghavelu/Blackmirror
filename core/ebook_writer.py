@@ -6,16 +6,21 @@ import os
 import textwrap
 
 # Font configuration - Railway compatible
-FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+FONT_DIR = "/usr/share/fonts/truetype/dejavu"
+FONT_PATH = f"{FONT_DIR}/DejaVuSans.ttf"
 
-def _ensure_font():
+def _verify_fonts():
+    """Validate font installation during startup"""
     if not os.path.exists(FONT_PATH):
-        raise RuntimeError(
-            "Font installation failed. Verify nixpacks.toml configuration.\n" 
-            "Expected path: " + FONT_PATH
-        )
-# Call once at startup
-_ensure_font()
+        raise RuntimeError(f"""
+            Font installation failed! Missing: {FONT_PATH}
+            Verify nixpacks.toml configuration and Railway build logs.
+            Required files in {FONT_DIR}:
+            {os.listdir(FONT_DIR) if os.path.exists(FONT_DIR) else 'Directory missing'}
+        """)
+
+# Call during application startup
+_verify_fonts()
 
 def generate_ebook_content(insight_text):
     system_prompt = """Expand into an 80-100 page eBook with:
