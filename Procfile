@@ -1,1 +1,1 @@
-python main:app --timeout 300
+python gunicorn main:app --timeout 300 
