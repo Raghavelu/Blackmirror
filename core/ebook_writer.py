@@ -10,8 +10,8 @@ import logging
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Font configuration for Railway/Nix environment
-FONT_DIR = "/nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu"
+# Replace wildcard path with Nix store reference
+FONT_DIR = "${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu"
 FONT_PATH = os.path.join(FONT_DIR, "DejaVuSans.ttf")
 
 def validate_font_installation():
