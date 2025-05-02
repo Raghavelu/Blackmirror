@@ -10,8 +10,8 @@ def create_assets(insight_text):
     base_filename = extract_title(clean_content)
     txt_path = f'assets/products/{base_filename}.txt'
     
-    with open(txt_path, 'w', encoding='utf-8', errors='replace') as f:
-        f.write(clean_content)
+    with open(txt_path, 'wb') as f:  # Write as bytes
+        f.write(clean_content.encode('utf-8', 'replace'))
     
     print(f"[Asset Generator] Saved TXT: {txt_path}")
     return txt_path
