@@ -19,6 +19,7 @@ let
     <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
     <fontconfig>
       <dir>${pkgs.dejavu_fonts}/share/fonts/truetype</dir>
+      <dir>/run/current-system/sw/share/X11/fonts</dir>
       <cachedir>/tmp/fontconfig/cache</cachedir>
     </fontconfig>
   '';
@@ -33,13 +34,15 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Permanent environment setup
-    export PATH="${pythonEnv}/bin:$PATH"
-    export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
+    # Font configuration
     export FONTCONFIG_FILE="${fontConf}"
+    export FONTCONFIG_PATH="${pkgs.fontconfig.out}/etc/fonts/"
     
-    # Font cache directory
-    mkdir -p /tmp/fontconfig/cache
+    # Link fonts to predictable path
+    mkdir -p /app/fonts
+    ln -sf ${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu /app/fonts/
+    
+    # Rebuild font cache
     fc-cache -f -v
   '';
 }
