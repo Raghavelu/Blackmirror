@@ -1,3 +1,4 @@
+# core/ebook_writer.py
 from fpdf import FPDF
 from core.deployer import extract_title
 from utils.models_fallback import smart_generate
@@ -5,21 +6,34 @@ import os
 import textwrap
 from datetime import datetime
 
+# --------------------------
+# TEXT SANITIZATION UTILITIES
+# --------------------------
 def sanitize_pdf_text(text):
-    # Replace problematic Unicode characters
+    """Clean text for PDF compatibility with multiple fallbacks"""
+    # Step 1: Force valid UTF-8 encoding
+    text = text.encode('utf-8', 'replace').decode('utf-8')
+    
+    # Step 2: Replace problematic Unicode characters
     replacements = {
-        '\u2013': '-', 
-        '\u2019': "'",
-        '\u201c': '"',
-        '\u201d': '"'
+        '\u2013': '-', '\u2014': '--',
+        '\u2018': "'", '\u2019': "'",
+        '\u201c': '"', '\u201d': '"',
+        '\u2026': '...', '\u00a0': ' ',
+        '\u200b': ''  # Zero-width space
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
-    # Remove control characters
-    return ''.join(c for c in text if ord(c) >= 32 or ord(c) == 10)
+    
+    # Step 3: Remove control characters (keep newlines/tabs)
+    return ''.join(c for c in text if ord(c) >= 32 or c in ('\n', '\t'))
 
+# ---------------------------
+# CONTENT GENERATION SECTION
+# ---------------------------
 def generate_ebook_content(insight_text):
-    system_prompt = """Expand this product concept into a comprehensive 80-100 page eBook. Structure should include:
+    """Generate expanded eBook content using AI model"""
+    system_prompt = """Expand this product concept into a comprehensive 80-100 page eBook. Structure must include:
 1. Title Page
 2. Table of Contents
 3. 10 Chapters with 3-5 sub-sections each
@@ -30,76 +44,100 @@ def generate_ebook_content(insight_text):
     
     return smart_generate(system_prompt, insight_text)
 
+# ------------------------
+# PDF VALIDATION UTILITIES
+# ------------------------
 def validate_pdf(path):
+    """Verify PDF file integrity"""
     try:
         with open(path, 'rb') as f:
-            return f.read(4) == b'%PDF'
-    except:
+            # Check header and trailer
+            header = f.read(4)
+            f.seek(-1024, 2)
+            trailer = f.read(1024)
+            return header == b'%PDF' and b'%%EOF' in trailer
+    except Exception as e:
+        print(f"PDF Validation Error: {str(e)}")
         return False
 
+# ----------------------
+# MAIN EBOOK GENERATION
+# ----------------------
 def write_ebook(insight_text):
+    """Generate full eBook PDF with error handling"""
     try:
-        print("[eBook Writer] Generating expanded eBook...")
+        print("[eBook Writer] Starting generation...")
         title = extract_title(insight_text)
         filename = f"assets/products/{title}_ebook.pdf"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+        # Generate and sanitize content
+        raw_content = generate_ebook_content(insight_text)
+        clean_content = sanitize_pdf_text(raw_content)
         
-        full_content = generate_ebook_content(insight_text)
-        full_content = sanitize_pdf_text(full_content)
-    
+        if not clean_content:
+            raise ValueError("Generated content is empty")
+
+        # Initialize PDF
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=25)
-        pdf.add_page()
-        
-        # Configure safe rendering with explicit dimensions
-        pdf.set_font("Arial", size=12)
-        pdf.set_doc_option('core_fonts_encoding', 'utf-8')
-        effective_page_width = pdf.w - 2*pdf.l_margin  # Calculate available width
+        effective_width = pdf.w - 2*pdf.l_margin  # Page width minus margins
 
+        # --------------------------
+        # SAFE CONTENT ADDITION SYSTEM
+        # --------------------------
+        def safe_add(text, font_size=12, style=''):
+            """Universal safe text addition with wrapping"""
+            pdf.set_font('Arial', style, font_size)
+            text = sanitize_pdf_text(str(text))
+            
+            # Split into paragraphs
+            paragraphs = text.split('\n\n')
+            for para in paragraphs:
+                # Split into lines with width calculation
+                wrapped = textwrap.wrap(para, width=int(effective_width/4.5))  # ~80 chars
+                for line in wrapped:
+                    # Final safety layer
+                    try:
+                        pdf.multi_cell(effective_width, 10, line)
+                    except:
+                        safe_line = line.encode('latin-1', 'replace').decode('latin-1')
+                        pdf.multi_cell(effective_width, 10, safe_line)
+                pdf.ln(4)  # Paragraph spacing
+
+        # --------------------------
+        # EBOOK STRUCTURE BUILDING
+        # --------------------------
         # Title Page
-        pdf.set_font('Arial', 'B', 24)
-        pdf.cell(0, 40, title, 0, 1, 'C')
+        pdf.add_page()
+        safe_add(title, font_size=24, style='B')
         pdf.ln(30)
+        safe_add(f"Generated: {datetime.now().strftime('%Y-%m-%d')}", 14)
 
         # Table of Contents
         pdf.add_page()
-        pdf.set_font('Arial', 'B', 16)
-        pdf.cell(0, 10, "Table of Contents", 0, 1)
-        pdf.set_font('Arial', '', 12)
-        
-        chapters = [line for line in full_content.split('\n') if line.startswith('Chapter')]
+        safe_add("Table of Contents", 16, 'B')
+        chapters = [line for line in clean_content.split('\n') if line.startswith('Chapter')]
         for idx, chapter in enumerate(chapters[:10]):
-            safe_text = chapter[8:].strip().encode('latin-1', 'replace').decode('latin-1')
-            pdf.cell(0, 8, f"{idx+1}. {safe_text}", 0, 1)
+            safe_add(f"{idx+1}. {chapter[8:].strip()}", 12)
 
-        # Main Content with Safe Wrapping
-        paragraphs = [p.strip() for p in full_content.split('\n\n')]
-        for para in paragraphs:
-            if para.startswith('Chapter'):
+        # Main Content
+        sections = clean_content.split('\n\n')
+        for section in sections:
+            if section.startswith('Chapter'):
                 pdf.add_page()
-                pdf.set_font('Arial', 'B', 16)
-                pdf.cell(0, 10, para.strip(), 0, 1)
-                pdf.set_font('Arial', '', 12)
+                safe_add(section.strip(), 16, 'B')
             else:
-                # Use calculated page width for wrapping
-                wrapped = textwrap.wrap(para, width=int(effective_page_width/2.5))  # ~80 chars
-                for line in wrapped:
-                    try:
-                        # Use explicit width for multi_cell
-                        pdf.multi_cell(effective_page_width, 8, line)
-                    except Exception as e:
-                        # Fallback rendering
-                        safe_line = line.encode('latin-1', 'replace').decode('latin-1')
-                        pdf.multi_cell(effective_page_width, 8, safe_line)
-                pdf.ln(5)
+                safe_add(section, 12)
 
+        # Finalize and validate
         pdf.output(filename)
-        
         if not validate_pdf(filename):
-            raise ValueError("Generated PDF is invalid")
+            raise ValueError("PDF failed validation checks")
             
-        print(f"[eBook Writer] Generated {filename} ({pdf.page_no()} pages)")
+        print(f"[eBook Writer] Success: {filename} ({pdf.page_no()} pages)")
         return filename
-        
+
     except Exception as e:
-        print(f"[ERROR] Failed to generate eBook: {str(e)}")
+        print(f"[CRITICAL ERROR] eBook Generation Failed: {str(e)}")
         raise
