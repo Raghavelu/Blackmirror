@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from core.deployer import extract_title
+from core.ebook_writer import sanitize_pdf_text
 
 def extract_field(pattern, text):
     try:
@@ -11,10 +12,14 @@ def extract_field(pattern, text):
         return "N/A"
 
 def generate_upload_summary(insight_text):
+    """Create platform summary with sanitized input"""
     print("[Upload Summary] Creating platform-ready summary...")
     
-    title = extract_title(insight_text).replace('_', ' ')
-    price_range = extract_field(r"Recommended Price", insight_text)
+    # Sanitize input first
+    clean_text = sanitize_pdf_text(insight_text)
+    
+    # Rest of the function using clean_text instead of insight_text
+    title = extract_title(clean_text).replace('_', ' ')
     
     summary = f"""---MARKETING COPY---
 Title: {title}
