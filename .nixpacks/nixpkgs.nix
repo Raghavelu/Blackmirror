@@ -13,16 +13,6 @@ let
     numpy
     chardet
   ]);
-  
-  fontConf = pkgs.writeText "fonts.conf" ''
-    <?xml version="1.0"?>
-    <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-    <fontconfig>
-      <dir>${pkgs.dejavu_fonts}/share/fonts/truetype</dir>
-      <dir>/run/current-system/sw/share/X11/fonts</dir>
-      <cachedir>/tmp/fontconfig/cache</cachedir>
-    </fontconfig>
-  '';
 in
 pkgs.mkShell {
   buildInputs = [
@@ -34,15 +24,13 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Font configuration
-    export FONTCONFIG_FILE="${fontConf}"
-    export FONTCONFIG_PATH="${pkgs.fontconfig.out}/etc/fonts/"
+    # Direct font path export
+    export FPDF_FONT_DIR="${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu"
+    export FONTCONFIG_FILE="${pkgs.fontconfig}/etc/fonts/fonts.conf"
     
-    # Link fonts to predictable path
-    mkdir -p /app/fonts
-    ln -sf ${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu /app/fonts/
-    
-    # Rebuild font cache
-    fc-cache -f -v
+    # Verify font existence
+    echo "Font verification:"
+    ls -l ${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu/DejaVuSans.ttf
+    fc-list | grep DejaVu
   '';
 }
