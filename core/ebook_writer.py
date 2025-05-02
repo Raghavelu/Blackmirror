@@ -6,10 +6,29 @@ import textwrap
 from datetime import datetime
 
 def sanitize_pdf_text(text):
-    # ... (keep existing sanitize_pdf_text implementation) ...
+    # Replace problematic Unicode characters
+    replacements = {
+        '\u2013': '-', 
+        '\u2019': "'",
+        '\u201c': '"',
+        '\u201d': '"'
+    }
+    for k, v in replacements.items():
+        text = text.replace(k, v)
+    # Remove control characters
+    return ''.join(c for c in text if ord(c) >= 32 or ord(c) == 10)
 
 def generate_ebook_content(insight_text):
-    # ... (keep existing generate_ebook_content implementation) ...
+    system_prompt = """Expand this product concept into a comprehensive 80-100 page eBook. Structure should include:
+1. Title Page
+2. Table of Contents
+3. 10 Chapters with 3-5 sub-sections each
+4. Case Studies
+5. Actionable Worksheets
+6. Resource Appendix
+7. About the Author"""
+    
+    return smart_generate(system_prompt, insight_text)
 
 def validate_pdf(path):
     try:
@@ -69,7 +88,6 @@ def write_ebook(insight_text):
 
         pdf.output(filename)
         
-        # Validate PDF after generation
         if not validate_pdf(filename):
             raise ValueError("Generated PDF is invalid")
             
