@@ -1,4 +1,3 @@
-# core/ebook_writer.py
 from fpdf import FPDF
 from core.deployer import extract_title
 from core.utils import sanitize_text
@@ -6,6 +5,7 @@ import os
 import textwrap
 import subprocess
 import logging
+import glob
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -14,17 +14,39 @@ logger = logging.getLogger(__name__)
 FONT_DIR = "${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu"
 FONT_PATH = os.path.join(FONT_DIR, "DejaVuSans.ttf")
 
+# Dynamic font path resolution for Nix
+def get_font_path():
+    # Look in Nix store paths first
+    nix_font_dirs = glob.glob("/nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu")
+    if nix_font_dirs:
+        return os.path.join(nix_font_dirs[0], "DejaVuSans.ttf")
+    
+    # Fallback to system paths
+    system_paths = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/local/share/fonts/dejavu/DejaVuSans.ttf"
+    ]
+    for path in system_paths:
+        if os.path.exists(path):
+            return path
+    
+    raise RuntimeError("DejaVu Sans font not found in any standard locations")
+
+FONT_PATH = get_font_path()
+
 def validate_font_installation():
-    """Verify font files exist in Nix store location"""
+    """Robust font validation with detailed error reporting"""
     if not os.path.exists(FONT_PATH):
-        available_fonts = "\n".join(os.listdir(FONT_DIR)) if os.path.exists(FONT_DIR) else "Font directory missing"
-        error_msg = f"""
-        Critical Font Error: DejaVu Sans not found at {FONT_PATH}
-        Available files in font directory:
-        {available_fonts}
-        """
-        logger.critical(error_msg)
-        raise RuntimeError(error_msg)
+        available = []
+        if os.path.exists(os.path.dirname(FONT_PATH)):
+            available = os.listdir(os.path.dirname(FONT_PATH))
+        
+        raise RuntimeError(
+            f"Critical Font Error: DejaVu Sans not found at {FONT_PATH}\n"
+            f"Available files in font directory: {available if available else 'Directory missing'}"
+        )
+    
+    print(f"[Font Validation] Using font at: {FONT_PATH}"))
 
 def generate_ebook_content(insight_text):
     """Generate expanded eBook content using AI model"""
