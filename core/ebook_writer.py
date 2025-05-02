@@ -10,23 +10,28 @@ from datetime import datetime
 # TEXT SANITIZATION UTILITIES
 # --------------------------
 def sanitize_pdf_text(text):
-    """Clean text for PDF compatibility with multiple fallbacks"""
-    # Step 1: Force valid UTF-8 encoding
-    text = text.encode('utf-8', 'replace').decode('utf-8')
+    """Multi-layer text sanitization with byte-level cleaning"""
+    # Layer 1: Force valid UTF-8 with multiple fallbacks
+    try:
+        text = text.encode('utf-8').decode('utf-8')
+    except UnicodeDecodeError:
+        text = text.encode('utf-8', 'replace').decode('utf-8')
+    except UnicodeEncodeError:
+        text = text.encode('latin-1', 'replace').decode('latin-1')
     
-    # Step 2: Replace problematic Unicode characters
+    # Layer 2: Replace problematic Unicode characters
     replacements = {
         '\u2013': '-', '\u2014': '--',
         '\u2018': "'", '\u2019': "'",
         '\u201c': '"', '\u201d': '"',
         '\u2026': '...', '\u00a0': ' ',
-        '\u200b': ''  # Zero-width space
+        '\u200b': '', '\ufffd': '(?)'
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
     
-    # Step 3: Remove control characters (keep newlines/tabs)
-    return ''.join(c for c in text if ord(c) >= 32 or c in ('\n', '\t'))
+    # Layer 3: Remove remaining non-printable characters
+    return ''.join(c for c in text if 31 < ord(c) < 127 or c in ('\n', '\t'))
 
 # ---------------------------
 # CONTENT GENERATION SECTION
