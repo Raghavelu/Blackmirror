@@ -6,6 +6,7 @@ import textwrap
 import subprocess
 import logging
 import glob
+from config import FONT_PATH
 
 # Configure logging
 logger = logging.getLogger(__name__)
