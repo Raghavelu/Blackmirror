@@ -6,8 +6,6 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    # Link fonts from Nix store to system location
-    "ln -sf ${pkgs.dejavu_fonts}/share/fonts/truetype/dejavu /usr/share/fonts/truetype/",
     "fc-cache -f -v"
 ]
 
