@@ -9,7 +9,8 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-    "fc-cache -f -v"
+    "fc-cache -f -v",
+    "python -c 'import flask; print(f\"Flask version: {flask.__version__}\")'"
 ]
 
 [phases.start]
