@@ -10,7 +10,7 @@ nixPkgs = [
 
 [phases.install]
 commands = [
-  "pip install --no-cache-dir -r requirements.txt"
+  "pip install --no-cache-dir -r requirements.txt",
   "fc-cache -f -v",
   "ln -sf /nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu /app/fonts"
 ]
