@@ -14,4 +14,4 @@ commands = [
 ]
 
 [phases.start]
-cmd = "gunicorn main:app --timeout 300 --bind 0.0.0.0:$PORT"
+cmd = "${HOME}/.nix-profile/bin/gunicorn main:app --timeout 300 --bind 0.0.0.0:$PORT"
