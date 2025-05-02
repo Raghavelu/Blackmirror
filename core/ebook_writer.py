@@ -16,8 +16,8 @@ FONT_PATH = os.path.join(FONT_DIR, "DejaVuSans.ttf")
 
 # Dynamic font path resolution for Nix
 def get_font_path():
-    # Look in Nix store paths first
     nix_font_dirs = glob.glob("/nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu")
+    print(f"Found Nix font directories: {nix_font_dirs}")
     if nix_font_dirs:
         return os.path.join(nix_font_dirs[0], "DejaVuSans.ttf")
     
@@ -46,7 +46,7 @@ def validate_font_installation():
             f"Available files in font directory: {available if available else 'Directory missing'}"
         )
     
-    print(f"[Font Validation] Using font at: {FONT_PATH}"))
+    print(f"[Font Validation] Using font at: {FONT_PATH}")
 
 def generate_ebook_content(insight_text):
     """Generate expanded eBook content using AI model"""
