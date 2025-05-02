@@ -1,0 +1,10 @@
+[phases.setup]
+nixPkgs = [
+    "dejavu-fonts"
+]
+
+[phases.install]
+commands = [
+    "mkdir -p /app/.fonts",
+    "cp -r /run/current-system/sw/share/fonts/truetype/dejavu /app/.fonts/"
+]
