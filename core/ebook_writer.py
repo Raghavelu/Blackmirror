@@ -32,6 +32,12 @@ def write_ebook(insight_text):
         filename = f"assets/products/{title}_ebook.pdf"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
+        # Add final binary check
+        with open(filename, 'rb') as f:
+        content = f.read()
+        if b'\x9c' in content:
+            raise ValueError("Found invalid byte in PDF content")
+
         # Generate and sanitize content
         raw_content = generate_ebook_content(insight_text)
         clean_content = sanitize_text(raw_content)
@@ -43,6 +49,7 @@ def write_ebook(insight_text):
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=25)
         effective_width = pdf.w - 2*pdf.l_margin
+        
 
         def safe_add(text, font_size=12, style=''):
             """Universal safe text addition"""
