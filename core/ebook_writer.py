@@ -33,21 +33,16 @@ def get_font_path():
     
     raise RuntimeError("DejaVu Sans font not found in any standard locations")
 
-FONT_PATH = get_font_path()
+FONT_PATH = "/app/fonts/DejaVuSans.ttf"
 
 def validate_font_installation():
-    """Robust font validation with detailed error reporting"""
     if not os.path.exists(FONT_PATH):
-        available = []
-        if os.path.exists(os.path.dirname(FONT_PATH)):
-            available = os.listdir(os.path.dirname(FONT_PATH))
-        
+        available = os.listdir(os.path.dirname(FONT_PATH)) if os.path.exists(os.path.dirname(FONT_PATH)) else []
         raise RuntimeError(
-            f"Critical Font Error: DejaVu Sans not found at {FONT_PATH}\n"
-            f"Available files in font directory: {available if available else 'Directory missing'}"
+            f"Font Error: DejaVu Sans not found at {FONT_PATH}\n"
+            f"Available files: {available}"
         )
-    
-    print(f"[Font Validation] Using font at: {FONT_PATH}")
+    print(f"Using font: {FONT_PATH}")
 
 def generate_ebook_content(insight_text):
     """Generate expanded eBook content using AI model"""
