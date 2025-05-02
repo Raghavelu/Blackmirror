@@ -25,7 +25,6 @@ def generate_upload_summary(insight_text):
 Title: {title}
 Description: {extract_field('Description', insight_text)}
 Audience: {extract_field('Target Audience', insight_text)}
-Price: {price_range}
 Format: {extract_field('Format', insight_text)}
 Release Date: {datetime.now().strftime('%Y-%m-%d')}
 Tags: {', '.join(re.findall(r'\b\w+\b', title)[:5])}
