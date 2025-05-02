@@ -24,15 +24,12 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Create wrapper script with environment setup
-    mkdir -p $out/bin
-    cat > $out/bin/start-app <<EOF
-    #!/bin/sh
-    export PATH="${pythonEnv}/bin:\$PATH"
-    export PYTHONPATH="${pythonEnv}/${pythonEnv.sitePackages}"
-    export FONTCONFIG_FILE="${pkgs.fontconfig}/etc/fonts/fonts.conf"
-    exec gunicorn main:app --timeout 300 --bind 0.0.0.0:\$PORT
-    EOF
-    chmod +x $out/bin/start-app
+    # Create font symlinks using wildcard path
+    mkdir -p /app/fonts
+    ln -sf /nix/store/*-dejavu-fonts-*/share/fonts/truetype/dejavu/* /app/fonts/
+    
+    # Verify font installation
+    echo "Font files in /app/fonts:"
+    ls -l /app/fonts/DejaVuSans.ttf
   '';
 }
